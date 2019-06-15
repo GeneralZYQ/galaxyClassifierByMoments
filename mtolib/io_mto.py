@@ -9,8 +9,8 @@ from PIL import Image
 import csv
 import warnings
 from astropy.utils.exceptions import AstropyDeprecationWarning
-import cv2
-from scipy.misc import imread
+# import cv2
+# from scipy.misc import imread
 
 
 def get_file_extension(filename):
@@ -217,32 +217,32 @@ def generate_moments_based_on_image(params):
         print (finalcuttendname)
 
 
-    data = fits.open(params.filename)[0].data
+    # data = fits.open(params.filename)[0].data
 
-    if data is None:
-        data = fits.open(fitsfilename)[1].data
+    # if data is None:
+    #     data = fits.open(fitsfilename)[1].data
 
-    image = Image.fromarray(data[finalstarty:finalendy + 1,finalstartx:finalendx + 1], 'L')
-    image.save(finalcuttendname)
+    # image = Image.fromarray(data[finalstarty:finalendy + 1,finalstartx:finalendx + 1], 'L')
+    # image.save(finalcuttendname)
 
-    toCalImage = imread(finalcuttendname,flatten=1)
-    momen = cv2.moments(toCalImage)
-    huMoments = cv2.HuMoments(momen)
-    print (huMoments)
+    # toCalImage = imread(finalcuttendname,flatten=1)
+    # momen = cv2.moments(toCalImage)
+    # huMoments = cv2.HuMoments(momen)
+    # print (huMoments)
 
-    momentsname = ''
-    if params.moments_name:
-        momentsname = params.moments_name
-    else:
-        momentsname = 'moments.csv'
+    # momentsname = ''
+    # if params.moments_name:
+    #     momentsname = params.moments_name
+    # else:
+    #     momentsname = 'moments.csv'
 
-    finalshape = ''
-    if params.shape:
-        finalshape = params.shape
-    else:
-        finalshape = 'unknown'
+    # finalshape = ''
+    # if params.shape:
+    #     finalshape = params.shape
+    # else:
+    #     finalshape = 'unknown'
 
-    with open(momentsname, 'a') as csvfile:
-        param_writer = csv.writer(csvfile)
+    # with open(momentsname, 'a') as csvfile:
+    #     param_writer = csv.writer(csvfile)
 
-        param_writer.writerow([finalcuttendname, params.shape, huMoments[0][0], huMoments[1][0], huMoments[2][0], huMoments[3][0], huMoments[4][0], huMoments[5][0], huMoments[6][0]])
+    #     param_writer.writerow([finalcuttendname, params.shape, huMoments[0][0], huMoments[1][0], huMoments[2][0], huMoments[3][0], huMoments[4][0], huMoments[5][0], huMoments[6][0]])

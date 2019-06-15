@@ -1,12 +1,11 @@
 import mtolib.main as mto
 import numpy as np
+from PIL import Image
 
 """Example program - using original settings"""
 
 # Get the input image and parameters
 image, params = mto.setup()
-print (type(image))
-
 
 # Pre-process the image
 processed_image = mto.preprocess_image(image, params, n=2)

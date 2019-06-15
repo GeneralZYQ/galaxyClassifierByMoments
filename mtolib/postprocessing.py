@@ -125,8 +125,8 @@ def get_image_parameters(img, object_ids, sig_ancs, params,):
 
         preffixParas.append(area)
         preffixParas.append(float(allgrey / area))
-        print (len(preffixParas))
-        print (preffixParas)
+        # print (len(preffixParas))
+        # print (preffixParas)
         parameters.append(preffixParas)
             # print(pixel_indices[1][ind])
             # print(pixel_indices[0][ind])
