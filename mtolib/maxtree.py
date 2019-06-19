@@ -53,8 +53,9 @@ class OriginalMaxTree(MaxTree):
         img_pointer = image.ravel().ctypes.data_as(ct.POINTER(params.d_type))
 
         c_img = mt_class.Image(img_pointer, image.shape[0], image.shape[1], image.size)
-        print (image.ravel())
-        print (type(c_img))
+        # print (image.ravel())
+        print ("....")
+        print (img_pointer[1025])
 
         # Create empty mt object
         self.mt = mt_class.MtData()

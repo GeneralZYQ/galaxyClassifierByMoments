@@ -267,6 +267,7 @@ void mt_flood(mt_data* mt)
 
     next_pixel = *MT_HEAP_TOP(&mt->heap);
     next_index = MT_INDEX_OF(next_pixel);
+    // printf("The pixel value is %f\n", next_pixel.value);
 
     if (next_pixel.value > pixel.value)
     {

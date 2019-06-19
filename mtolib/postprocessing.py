@@ -6,6 +6,7 @@ from skimage.color import label2rgb
 import csv
 import pandas as pd 
 from PIL import Image
+import ctypes as ct
 
 
 
@@ -80,6 +81,11 @@ def levelled_segments(img, label_map):
 def get_image_parameters(img, object_ids, sig_ancs, params,):
     """Calculate the parameters for all objects in an image"""
 
+    # Create image object
+    img_pointer = img.ravel().ctypes.data_as(ct.POINTER(params.d_type))
+    imageHeight = img.shape[0]
+    imageWidth = img.shape[1]
+
     # Treat warnings as exceptions
     warnings.filterwarnings('error', category=RuntimeWarning, append=True)
 
@@ -117,12 +123,15 @@ def get_image_parameters(img, object_ids, sig_ancs, params,):
 
         # all_indices.append(xIndices)
         # all_indices.append(yIndices)
-        area = len(pixel_indices[1]) # area
-        grayImage = Image.fromarray(img).convert('L')
+
         allgrey = 0
         for ind in range(0,len(pixel_indices[1])):
-            allgrey = allgrey + grayImage.getpixel((int(pixel_indices[1][ind]), int(pixel_indices[0][ind])))
+            coordination = int(pixel_indices[1][ind]) + imageHeight * int(pixel_indices[0][ind])
+            greylevel = img_pointer[coordination]
+            allgrey = allgrey + greylevel
+            # allgrey = allgrey + grayImage.getpixel((int(pixel_indices[1][ind]), int(pixel_indices[0][ind])))
 
+        area = len(pixel_indices[1])
         preffixParas.append(area)
         preffixParas.append(float(allgrey / area))
         # print (len(preffixParas))
