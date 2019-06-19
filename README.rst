@@ -83,3 +83,7 @@ Arguments:
 	  organization={Springer}
 	}
 
+=====
+Calculate local spectrum
+=====
+
