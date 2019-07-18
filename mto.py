@@ -84,17 +84,59 @@ for node in nodes:
 	iIndex = iIndex + 1
 
 print ("the iIndex is %d" % iIndex)
-count = 0
-currentIndex = 0
-for node in nodes:
-	if node[0] == iIndex:
-		count = count + 1
-		rown = int(currentIndex / 1024)
-		coln = int(currentIndex % 1024)
-		print ("The density is %d" % processed_image[rown, coln])
-	currentIndex = currentIndex + 1
+#The assume index is 'iIndex'
+#The assume area is 'assumeArea'
 
-print ("The first children number is %d" % count)
+
+ratios = []
+deltas = []
+i = 0
+
+for node in nodes:
+    #node is the current node
+    parent = node[0]
+    area = node[1]
+
+    contains = False
+    parentNodeParent = parent
+    parentNode = []
+
+    if parent == iIndex: #directly
+        contains = True
+        parentNode = nodes[parent] #parentNode is the father of current node
+    else:
+
+        while True:
+            parentNode = nodes[parentNodeParent]
+            parentNodeParent = parentNode[0]
+            if parentNodeParent == iIndex:
+                contains = True
+                break
+            if parentNodeParent == -3:
+                break
+
+    if contains: #the node belongs to the galaxy
+        if area > 1: #this is a node but not a pixel
+            ratio = float(area / assumeArea)
+            print ('---------')
+            print (ratio)
+            currentIndex = i
+            parentIndex = parent
+
+            rown = int(currentIndex / 6)
+            coln = int(currentIndex % 6)
+
+            rowp = int(parentIndex / 6)
+            colp = int(parentIndex % 6)
+
+            delta = self.image[rown,coln] - self.image[rowp,colp]
+            print (delta)
+            ratios.append(ratio)
+            deltas.append(delta)
+
+
+    i = i + 1
+
 # delta = processed_image[]
 # in here we calculate the object we would like , then we can use the nodes to calculate the local spectrum
 
