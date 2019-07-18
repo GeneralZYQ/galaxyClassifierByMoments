@@ -5,6 +5,7 @@ import numpy.ctypeslib as npct
 import numpy as np
 
 from mtolib import _ctype_classes as mt_class
+import matplotlib.pyplot as plt
 
 
 class MaxTree:
@@ -54,8 +55,6 @@ class OriginalMaxTree(MaxTree):
 
         c_img = mt_class.Image(img_pointer, image.shape[0], image.shape[1], image.size)
         # print (image.ravel())
-        print ("....")
-        print (img_pointer[1025])
 
         # Create empty mt object
         self.mt = mt_class.MtData()
@@ -78,10 +77,90 @@ class OriginalMaxTree(MaxTree):
         self.mt_lib.mt_flood(ct.byref(self.mt))
 
         # Get a 2D numpy array of the MtNode data
-        # nodes = npct.as_array(ct.cast(self.mt.nodes, ct.POINTER(ct.c_int32)), (self.mt.img.size, 2))
-
+        nodes = npct.as_array(ct.cast(self.mt.nodes, ct.POINTER(ct.c_int32)), (self.mt.img.size, 2))
+        
         # node_attributes = npct.as_array(ct.cast(self.mt.node_attributes, ct.POINTER(ct.c_double)),
         #                                (self.mt.img.size, 2))
+
+        # print (nodes)
+
+        ####
+        ##The following piece of code can be used as the method to make local spectrum
+
+        # assumeObjectStartIndex = 7
+        # assumeObjectArea = 13
+        # ratios = []
+        # deltas = []
+
+        # i = 0
+
+        # for node in nodes:
+        #     #node is the current node
+        #     parent = node[0]
+        #     area = node[1]
+
+        #     contains = False
+        #     parentNodeParent = parent
+        #     parentNode = []
+
+        #     if parent == assumeObjectStartIndex: #directly
+        #         contains = True
+        #         parentNode = nodes[parent] #parentNode is the father of current node
+        #     else:
+
+        #         while True:
+        #             parentNode = nodes[parentNodeParent]
+        #             parentNodeParent = parentNode[0]
+        #             if parentNodeParent == assumeObjectStartIndex:
+        #                 contains = True
+        #                 break
+        #             if parentNodeParent == -3:
+        #                 break
+
+        #     if contains: #the node belongs to the galaxy
+        #         if area > 1: #this is a node but not a pixel
+        #             ratio = float(area / assumeObjectArea)
+        #             print ('---------')
+        #             print (ratio)
+        #             currentIndex = i
+        #             parentIndex = parent
+
+        #             rown = int(currentIndex / 6)
+        #             coln = int(currentIndex % 6)
+
+        #             rowp = int(parentIndex / 6)
+        #             colp = int(parentIndex % 6)
+
+        #             delta = self.image[rown,coln] - self.image[rowp,colp]
+        #             print (delta)
+        #             ratios.append(ratio)
+        #             deltas.append(delta)
+
+
+        #     i = i + 1
+
+        # ratios.append(1.0)
+        # deltas.append(0.0)
+
+
+        ### The code piece ends here.
+        
+        # ratios = [0.16, 0.33, 1.0]
+        # deltas = [2, 1, 0]
+        # plt.figure(figsize=(8,4))
+        # plt.plot(ratios,deltas,"r--",linewidth=1)
+        # plt.xlabel("ratio") 
+        # plt.ylabel("delta")
+        # plt.title("Local Spectrum")
+        # plt.show()
+
+                    
+
+
+
+
+
+
 
         self.root = self.mt.root
         self.nodes = self.mt.nodes

@@ -46,9 +46,17 @@ def max_tree_timed(img, params, maxtree_class):
     """Build and return a maxtree of a given class"""
     if params.verbosity:
         print("\n---Building Maxtree---")
+    
+    # fakeimage = np.ndarray((6,6), buffer=np.array([[0,0,0,0,0,0], 
+    #                                                [0,1,1,1,1,0], 
+    #                                                [0,1,2,2,1,0], 
+    #                                                [0,4,4,1,1,0], 
+    #                                                [0,0,1,0,0,0],
+    #                                                [0,0,0,0,0,0]]), dtype=int)
+    # print(fakeimage)
     mt = maxtree_class(img, params.verbosity, params)
+
     mt.flood()
-    print (mt.nodes)
     return mt
 
 

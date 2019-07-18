@@ -260,7 +260,7 @@ void mt_flood(mt_data* mt)
 
   while (MT_HEAP_NOT_EMPTY(&mt->heap))
   {
-    mt_pixel pixel = next_pixel;
+    mt_pixel pixel = next_pixel; // to construct
     INT_TYPE index = next_index;
 
     mt_queue_neighbours(mt, &pixel);
@@ -272,8 +272,8 @@ void mt_flood(mt_data* mt)
     if (next_pixel.value > pixel.value)
     {
       // Higher level
-      // printf("the pixel value is %f\n", next_pixel.value);
-      mt_stack_insert(&mt->stack, &next_pixel);
+      // printf("heigher : the pixel value is %f\n", next_pixel.value);
+      mt_stack_insert(&mt->stack, &next_pixel); // It is higher, we will process it later.
       continue;
     }
 
@@ -308,6 +308,9 @@ void mt_flood(mt_data* mt)
 
   mt_stack_free_entries(&mt->stack);
   mt_heap_free_entries(&mt->heap);
+
+  int length = (sizeof(mt->nodes));
+  printf("The size of nodes is %d\n", length);
 }
 
 void mt_init(mt_data* mt, const image* img)
