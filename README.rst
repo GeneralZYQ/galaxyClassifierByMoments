@@ -83,3 +83,9 @@ Arguments:
 	  organization={Springer}
 	}
 
+=====
+Calculate local spectrum
+=====
+In this project, we are going to use the local spectrum of the galaxy images to make morphologic classifers to help the researchers to classify the galaxy images.
+
+In the post process of the object detection, we calculate the area and greylevel of each objects.
