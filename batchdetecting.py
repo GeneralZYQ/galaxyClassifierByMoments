@@ -2,14 +2,14 @@
 import os
 import time
 
-foldernames = ['acwSpiralFITS', 'combinesFITS', 'cwSpiralsFITS', 'DKsFITS', 'edgesFITS', 'ellipticsFITS', 'mergesFITS']
+foldernames = ['combinesFITS', 'DKsFITS', 'edgesFITS', 'mergesFITS', 'ellipticsFITS','cwSpiralsFITS','acwSpiralFITS']
 
 cou = 1 # Just for counting how many files has been processed # elliptics 55
-startedInfolder = 'ellipticsFITS'
-shouldCheckFolder = False
+startedInfolder = 'acwSpiralFITS'
+shouldCheckFolder = True
 countIndex = 0
-shouldCheckIndex = False
-startIndex = 55
+shouldCheckIndex = True
+startIndex = 550
 
 for foldername in foldernames:
 
@@ -36,7 +36,7 @@ for foldername in foldernames:
 
 		if shouldCheckIndex and countIndex < startIndex:
 			countIndex = countIndex + 1
-			print (countIndex)
+			# print (countIndex)
 			continue
 		else:
 			if shouldCheckIndex and countIndex >= startIndex:
@@ -59,5 +59,7 @@ for foldername in foldernames:
 
 		cou = cou + 1
 		if cou % 50 == 0:
-			print ("The number is %d in time %s" % (cou, time.time()))
+			print ("==================The number is %d in time %s ===========================" % (cou, time.time()))
+		if cou > 100:
+			break
 
