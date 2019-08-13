@@ -58,7 +58,7 @@ for n in range(len(id_set)):
 	width = np.amax(pixel_indices[1]) - np.amin(pixel_indices[1])
 	height = np.amax(pixel_indices[0]) - np.amin(pixel_indices[0])
 	
-	if (width >= 200) and (height >= 200) and (width != 1023) and (height != 1023):
+	if (width >= 180) and (height >= 180) and (width != 1023) and (height != 1023):
 		currentCenterX = (assumeXstart + assumeXend) / 2.0
 		currentCenterY = (assumeYstart + assumeYend) / 2.0
 

@@ -1,15 +1,20 @@
 #batch processing and detecting objects
 import os
 import time
+import pandas as pd
 
 foldernames = ['combinesFITS', 'DKsFITS', 'edgesFITS', 'mergesFITS', 'ellipticsFITS','cwSpiralsFITS','acwSpiralFITS']
 
 cou = 1 # Just for counting how many files has been processed # elliptics 55
-startedInfolder = 'acwSpiralFITS'
+startedInfolder = 'cwSpiralsFITS'
 shouldCheckFolder = True
 countIndex = 0
-shouldCheckIndex = True
+shouldCheckIndex = False
 startIndex = 550
+
+namesDF = pd.read_csv("selfLabelledGalaxies.csv")
+namesSet = set(namesDF['name'])
+
 
 for foldername in foldernames:
 
@@ -26,7 +31,7 @@ for foldername in foldernames:
 
 	#/Volumes/DISK1/MTObjects/mergesFITS 
 
-	path = "/Volumes/DISK1/MTObjects/%s" % foldername 
+	path = "/Volumes/DISK2/galaxyZooDataSource/%s" % foldername 
 	files= os.listdir(path)
 
 	for filename in files:
@@ -50,6 +55,10 @@ for foldername in foldernames:
 		csvname = rawfilename + '.' + 'csv'
 		print (csvname)
 
+		filenameNum = int(rawfilename)
+		if filenameNum not in namesSet:
+			continue
+
 		pngname = rawfilename + '.' + 'png'
 
 		command = "python mto.py %s -verbosity 0 -out %s -par_out %s" % (fullPath, pngname, csvname)
@@ -60,6 +69,7 @@ for foldername in foldernames:
 		cou = cou + 1
 		if cou % 50 == 0:
 			print ("==================The number is %d in time %s ===========================" % (cou, time.time()))
-		if cou > 100:
+		if cou > 120:
+			print ("upper")
 			break
 
