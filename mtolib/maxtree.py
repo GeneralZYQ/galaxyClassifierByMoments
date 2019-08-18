@@ -49,9 +49,9 @@ class OriginalMaxTree(MaxTree):
         else:
             self.mt_lib = ct.CDLL('mtolib/lib/maxtree.so')
 
-
         # Create image object
         img_pointer = image.ravel().ctypes.data_as(ct.POINTER(params.d_type))
+
 
         c_img = mt_class.Image(img_pointer, image.shape[0], image.shape[1], image.size)
         # print (image.ravel())
