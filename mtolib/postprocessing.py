@@ -215,9 +215,9 @@ def get_second_order_moments(indices, values, flux_sum, x, y):
     y_pows = np.power(y_indices,2)
 
     # Find the second order moments
-    x2 = (np.sum(np.dot(x_pows, values))/flux_sum) - np.power(x, 2)
-    y2 = (np.sum(np.dot(y_pows, values))/flux_sum) - np.power(y, 2)
-    xy = (np.sum(x_indices * values * y_indices)/flux_sum) - (x * y)
+    x2 = (np.sum(np.dot(x_pows, values))/flux_sum) - np.power(x, 2) #miu20'
+    y2 = (np.sum(np.dot(y_pows, values))/flux_sum) - np.power(y, 2) # miu02'
+    xy = (np.sum(x_indices * values * y_indices)/flux_sum) - (x * y) # miu11'
 
     lhs = (x2 + y2)/2
     rhs = np.sqrt(np.power((x2 - y2)/2, 2) + np.power(xy,2))

@@ -75,6 +75,19 @@ static void mt_init_nodes(mt_data* mt)
   }
 }
 
+static void mt_init_node_indexes(mt_data *mt) {
+    // Initialise the node_indexes of the maxtree
+    INT_TYPE i;
+
+    for (i = 0; i != mt->img.size; ++i) {
+        mt->nodeIndexes[i].index = i;
+
+        char str[7];
+        sprintf(str, "%d", i);
+        mt->nodeIndexes[i].indexes = strdup(str);
+    }
+}
+
 static int mt_queue_neighbour(mt_data* mt, PIXEL_TYPE val,
   SHORT_TYPE x, SHORT_TYPE y)
 {
@@ -206,6 +219,15 @@ static void mt_descend(mt_data* mt, mt_pixel *next_pixel)
   INT_TYPE stack_top_index = MT_INDEX_OF(*stack_top);
 
   mt->nodes[old_top_index].parent = stack_top_index;
+
+  char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
+  char *toAddIndexes = mt->nodeIndexes[old_top_index].indexes;
+  strcat(currentIndexes, ",");
+  strcat(currentIndexes, toAddIndexes);
+
+  mt->nodeIndexes[stack_top_index].indexes = strdup(currentIndexes);
+
+
   mt_merge_nodes(mt, stack_top_index, old_top_index);
 }
 
@@ -286,6 +308,13 @@ void mt_flood(mt_data* mt)
     {
       mt->nodes[index].parent = stack_top_index;
       ++mt->nodes[stack_top_index].area;
+
+      char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
+      char toAddIndex[7];
+      sprintf(toAddIndex, "%d", index);
+      strcat(currentIndexes, ",");
+      strcat(currentIndexes, toAddIndex);
+      mt->nodeIndexes[stack_top_index].indexes = strdup(currentIndexes);
     }
 
     if (MT_HEAP_EMPTY(&mt->heap))
@@ -320,11 +349,13 @@ void mt_init(mt_data* mt, const image* img)
   mt->nodes = safe_malloc(mt->img.size * sizeof(mt_node));
   mt->nodes_attributes = safe_calloc(mt->img.size,
     sizeof(mt_node_attributes));
+  mt->nodeIndexes = safe_malloc(mt->img.size * sizeof(mt_node_indexes));
 
   mt_stack_alloc_entries(&mt->stack);
   mt_heap_alloc_entries(&mt->heap);
 
   mt_init_nodes(mt);
+  mt_init_node_indexes(mt);
 
   mt->connectivity.neighbors = mt_conn_4;
   mt->connectivity.width = MT_CONN_4_WIDTH;

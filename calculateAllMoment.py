@@ -20,6 +20,8 @@ import ctypes as ctp
 
 import collections
 
+from PIL import Image
+
 params = make_parser().parse_args()
 params.d_type = c_double
 ct.init_classes(params.d_type)
@@ -49,8 +51,8 @@ for fileName in files:
 
 		rangeYes = [int(x) for x in rangeYes]
 
-		# print ((max(rangeYes) - min(rangeYes)))
-		# print ((max(rangeXes) - min(rangeXes)))
+		print ((max(rangeYes) - min(rangeYes)))
+		print ((max(rangeXes) - min(rangeXes)))
 
 
 		crocantImage = np.zeros(((max(rangeYes) - min(rangeYes)+1), int(1+max(rangeXes) - min(rangeXes))))
@@ -66,42 +68,44 @@ for fileName in files:
 
 			crocantImage[YCinNew][XCinNew] = processedImageData[XC][YC]
 
-		
 
-		
-
-
-
-		crocantImage = np.ndarray((6,6), buffer=np.array([[0,0,0,0,0,0], 
-    	                                               [0,1,1,1,1,0], 
-    	                                               [0,1,2,2,1,0], 
-    	                                               [0,4,4,1,1,0], 
-    	                                               [0,0,1,0,0,0],
-    	                                               [0,0,0,0,0,0]]), dtype=int)
+		img = Image.fromarray(crocantImage, 'L')
+		img.save('my.png')
 
 
+
+		# crocantImage = np.ndarray((6,6), buffer=np.array([[0,0,0,0,0,0], 
+  #   	                                               [0,1,1,1,1,0], 
+  #   	                                               [0,1,2,2,1,0], 
+  #   	                                               [0,4,4,1,1,0], 
+  #   	                                               [0,0,1,0,0,0],
+  #   	                                               [0,0,0,0,0,0]]), dtype=int)
 
 
 
 
-		mt = mto.build_max_tree(crocantImage, params)
-		MTnodes = npct.as_array(ctp.cast(mt.nodes, ctp.POINTER(ctp.c_int32)), (crocantImage.size, 2))
-		shapes = [crocantImage.shape[1], crocantImage.shape[0]]
-		ravaledCroissant = crocantImage.ravel()
 
-		maxtreename = firstPar+'_croissant_mtnodes.csv'
-		shapesname = firstPar + '_croissant_shape.csv'
-		reveledimageName = firstPar + '_croissant_image.csv'
 
-		np.savetxt(maxtreename, MTnodes, delimiter=",", fmt='%i')#all the nodes
+		# mt = mto.build_max_tree(crocantImage, params)
+		# MTnodes = npct.as_array(ctp.cast(mt.nodes, ctp.POINTER(ctp.c_int32)), (crocantImage.size, 2))
+		# shapes = [crocantImage.shape[1], crocantImage.shape[0]]
+		# ravaledCroissant = crocantImage.ravel()
 
-		np.savetxt(shapesname, shapes, delimiter=",", fmt='%i')
+		# maxtreename = firstPar+'_croissant_mtnodes.csv'
+		# shapesname = firstPar + '_croissant_shape.csv'
+		# reveledimageName = firstPar + '_croissant_image.csv'
+
+		# np.savetxt(maxtreename, MTnodes, delimiter=",", fmt='%i')#all the nodes
+
+		# np.savetxt(shapesname, shapes, delimiter=",", fmt='%i')
+
+		# np.savetxt(reveledimageName, ravaledCroissant, delimiter=",", fmt='%.03f')
 
 	
 
-		with open(reveledimageName, 'w') as myfile:
-			wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
-			wr.writerow(ravaledCroissant)
+		# with open(reveledimageName, 'w') as myfile:
+		# 	wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+		# 	wr.writerow(ravaledCroissant)
 
 
 

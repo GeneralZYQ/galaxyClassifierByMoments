@@ -37,6 +37,13 @@ typedef struct
   FLOAT_TYPE power;
 } mt_node_attributes;
 
+typedef struct {
+
+    INT_TYPE index; //The start index
+    char *indexes; // The indexes, separated by ','. Such as '4,5,6,7,9'
+
+}mt_node_indexes;
+
 typedef struct
 {
   SHORT_TYPE x;
@@ -69,6 +76,7 @@ typedef struct
   image img;
   mt_connectivity connectivity;  
   int verbosity_level;
+  mt_node_indexes *nodeIndexes;
 } mt_data;
 
 void* mt_malloc(size_t size);
