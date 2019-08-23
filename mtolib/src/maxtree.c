@@ -82,7 +82,7 @@ static void mt_init_node_indexes(mt_data *mt) {
     for (i = 0; i != mt->img.size; ++i) {
         mt->nodeIndexes[i].index = i;
 
-        char str[7];
+        char str[17];
         sprintf(str, "%d", i);
         mt->nodeIndexes[i].indexes = strdup(str);
     }
@@ -220,12 +220,17 @@ static void mt_descend(mt_data* mt, mt_pixel *next_pixel)
 
   mt->nodes[old_top_index].parent = stack_top_index;
 
-  char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
-  char *toAddIndexes = mt->nodeIndexes[old_top_index].indexes;
-  strcat(currentIndexes, ",");
-  strcat(currentIndexes, toAddIndexes);
+  //This is the start====
 
-  mt->nodeIndexes[stack_top_index].indexes = strdup(currentIndexes);
+  
+
+  // char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
+  // char *toAddIndexes = mt->nodeIndexes[old_top_index].indexes;
+  // strcat(currentIndexes, ",");
+  // strcat(currentIndexes, toAddIndexes);
+  // mt->nodeIndexes[stack_top_index].indexes = strdup(currentIndexes);
+
+  //This is the end====
 
 
   mt_merge_nodes(mt, stack_top_index, old_top_index);
@@ -309,12 +314,16 @@ void mt_flood(mt_data* mt)
       mt->nodes[index].parent = stack_top_index;
       ++mt->nodes[stack_top_index].area;
 
-      char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
-      char toAddIndex[7];
-      sprintf(toAddIndex, "%d", index);
-      strcat(currentIndexes, ",");
-      strcat(currentIndexes, toAddIndex);
-      mt->nodeIndexes[stack_top_index].indexes = strdup(currentIndexes);
+      //This is the start ====
+
+      // char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
+      // char toAddIndex[17];
+      // sprintf(toAddIndex, "%d", index);
+      // strcat(currentIndexes, ",");
+      // strcat(currentIndexes, toAddIndex);
+      // mt->nodeIndexes[stack_top_index].indexes = strdup(currentIndexes);
+
+      // This is the end ===
     }
 
     if (MT_HEAP_EMPTY(&mt->heap))
@@ -340,6 +349,8 @@ void mt_flood(mt_data* mt)
 
   int length = (sizeof(mt->nodes));
   printf("The size of nodes is %d\n", length);
+
+  
 }
 
 void mt_init(mt_data* mt, const image* img)
@@ -349,7 +360,14 @@ void mt_init(mt_data* mt, const image* img)
   mt->nodes = safe_malloc(mt->img.size * sizeof(mt_node));
   mt->nodes_attributes = safe_calloc(mt->img.size,
     sizeof(mt_node_attributes));
+
+
+  printf("The size of raw indexes is %lu\n", sizeof(mt_node_indexes));
+
+  mt_node_indexes exampleIndexes = {.index=2929292, .indexes="3434343"};
+  printf("The assiged one size is %lu \n", sizeof(exampleIndexes));
   mt->nodeIndexes = safe_malloc(mt->img.size * sizeof(mt_node_indexes));
+  // mt->nodeIndexes = safe_calloc(mt->img.size, sizeof(mt_node_indexes));
 
   mt_stack_alloc_entries(&mt->stack);
   mt_heap_alloc_entries(&mt->heap);

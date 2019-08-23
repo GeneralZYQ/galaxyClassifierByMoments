@@ -1,6 +1,8 @@
 """Classes to facilitate interaction with MTObjects C libraries."""
 import ctypes as ct
 
+BUFSIZE = 1000000000
+
 
 def init_classes(d_type):
     """Initialise the classes required for interaction with C libraries."""
@@ -32,6 +34,9 @@ def init_classes(d_type):
     MtNode._fields_ = [("parent", ct.c_int32),
                     ("area", ct.c_int32)]
 
+    MTNodeIndexes._fields_ = [("index", ct.c_int16),
+                              ("indexes", ct.c_byte * BUFSIZE)]
+
     Image._fields_ = [("data", ct.POINTER(pixel_type)),
                     ("height", ct.c_int16),
                     ("width", ct.c_int16),
@@ -39,6 +44,7 @@ def init_classes(d_type):
 
     MtData._fields_ = [("root", ct.POINTER(MtNode)),
                     ("nodes", ct.POINTER(MtNode)),
+                    ("nodeIndexes", ct.POINTER(MTNodeIndexes)),
                     ("node_attributes", ct.POINTER(MtNodeAttributes)),
                     ("heap", MtHeap),
                     ("stack", MtStack),
@@ -100,6 +106,8 @@ class MtNodeAttributes(ct.Structure):
 class MtNode(ct.Structure):
     pass
 
+class MTNodeIndexes(ct.Structure):
+    pass
 
 class Image(ct.Structure):
     pass

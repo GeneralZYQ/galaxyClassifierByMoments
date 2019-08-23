@@ -69,8 +69,6 @@ for fileName in files:
 			crocantImage[YCinNew][XCinNew] = processedImageData[XC][YC]
 
 
-		img = Image.fromarray(crocantImage, 'L')
-		img.save('my.png')
 
 
 
@@ -86,8 +84,13 @@ for fileName in files:
 
 
 
-		# mt = mto.build_max_tree(crocantImage, params)
-		# MTnodes = npct.as_array(ctp.cast(mt.nodes, ctp.POINTER(ctp.c_int32)), (crocantImage.size, 2))
+		mt = mto.build_max_tree(crocantImage, params)
+		MTnodes = npct.as_array(ctp.cast(mt.nodes, ctp.POINTER(ctp.c_int32)), (crocantImage.size, 2))
+		MTNODEINDEXESnodes = npct.as_array(ctp.cast(mt.nodeIndexes, ctp.POINTER(ctp.c_int32)), (crocantImage.size, 2))
+
+		print (MTNODEINDEXESnodes)
+
+
 		# shapes = [crocantImage.shape[1], crocantImage.shape[0]]
 		# ravaledCroissant = crocantImage.ravel()
 
