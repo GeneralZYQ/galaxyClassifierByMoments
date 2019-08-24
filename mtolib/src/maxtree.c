@@ -28,6 +28,107 @@ const int mt_conn_4[MT_CONN_4_HEIGHT * MT_CONN_4_WIDTH] =
   0, 1, 0,
 };
 
+float calculateMpq (int pixels[], int p, int q, mt_data *mt, int imageWidth, int NIndicesCount) {
+
+    float mpq = 0.0;
+
+
+    for (int i = 0; i < NIndicesCount; ++i) {
+        int value = pixels[i];
+        int xc = value % imageWidth;
+        int yc = value / imageWidth;
+        PIXEL_TYPE imgvalue = mt->img.data[value];
+        float mid = pow(xc, p) * pow(yc, q) * imgvalue;
+        mpq += mid;
+    }
+
+    return mpq;
+}
+
+float calculateMiupq(int pixels[], int p, int q, mt_data *mt, int imageWidth, int NIndicesCount) {
+    float m10 = calculateMpq(pixels, 1, 0, mt, imageWidth, NIndicesCount);
+    float m01 = calculateMpq(pixels, 0, 1, mt, imageWidth, NIndicesCount);
+    float m00 = calculateMpq(pixels, 0, 0, mt, imageWidth, NIndicesCount);
+
+    float xcentral = m10 / m00;
+    float ycentral = m01 / m00;
+
+    float miupq = 0.0;
+    for (int i = 0; i < NIndicesCount; ++i) {
+        int xc = pixels[i] % imageWidth;
+        int yc = pixels[i] % imageWidth;
+        miupq += pow(xc - xcentral, p) * pow(yc - ycentral, q) * mt->img.data[pixels[i]];
+    }
+
+    return miupq;
+}
+//
+float calculateItaij (int pixels[], int i, int j, mt_data *mt, int imageWidth, int NIndicesCount) {
+    float miuij = calculateMiupq(pixels, i, j, mt, imageWidth, NIndicesCount);
+    float miu00 = calculateMiupq(pixels, 0, 0, mt, imageWidth, NIndicesCount);
+    float itaij = miuij / powf(miu00, (1 + (i + j) / 2.0));
+    return itaij;
+}
+//
+float calculateM1 (int *pixelsp,  mt_data *mt, int imageWidth, int NIndicesCount) {
+
+    float ita20 = calculateItaij(pixelsp, 2, 0, mt, imageWidth, NIndicesCount);
+    float ita02 = calculateItaij(pixelsp, 0, 2, mt, imageWidth, NIndicesCount);
+    return  ita02 + ita20;
+}
+
+float calculateM2(int pixelsp[], mt_data *mt, int imageWidth, int NIndicesCount) {
+    float ita11 = calculateItaij(pixelsp, 1, 1, mt, imageWidth, NIndicesCount);
+    float ita20 = calculateItaij(pixelsp, 2, 0, mt, imageWidth, NIndicesCount);
+    float ita02 = calculateItaij(pixelsp, 0, 2, mt, imageWidth, NIndicesCount);
+    return  pow(ita20 - ita02, 2) + 4 * pow(ita11, 2);
+}
+
+float calculateM3 (int pixelsp[], mt_data *mt, int imageWidth, int imageHeight) {
+    float ita30 = calculateItaij(pixelsp, 3, 0, mt, imageWidth, imageHeight);
+    float ita12 = calculateItaij(pixelsp, 1, 2, mt, imageWidth, imageHeight);
+    float ita21 = calculateItaij(pixelsp, 2, 1, mt, imageWidth, imageHeight);
+    float ita03 = calculateItaij(pixelsp, 0, 3, mt, imageWidth, imageHeight);
+    return pow(ita30 - 3 * ita12, 2) + pow(3 * ita21 - ita03 , 2);
+}
+
+float calculateM4 (int pixelsp[], mt_data *mt, int imageWidth, int imageHeight) {
+    float ita30 = calculateItaij(pixelsp, 3, 0, mt, imageWidth, imageHeight);
+    float ita12 = calculateItaij(pixelsp, 1, 2, mt, imageWidth, imageHeight);
+    float ita21 = calculateItaij(pixelsp, 2, 1, mt, imageWidth, imageHeight);
+    float ita03 = calculateItaij(pixelsp, 0, 3, mt, imageWidth, imageHeight);
+    return pow(ita30 + ita12, 2) + pow(ita21 + ita03, 2);
+}
+
+float calculateM5 (int pixelsp[], mt_data *mt, int imageWidth, int imageHeight) {
+    float ita30 = calculateItaij(pixelsp, 3, 0, mt, imageWidth, imageHeight);
+    float ita12 = calculateItaij(pixelsp, 1, 2, mt, imageWidth, imageHeight);
+    float ita21 = calculateItaij(pixelsp, 2, 1, mt, imageWidth, imageHeight);
+    float ita03 = calculateItaij(pixelsp, 0, 3, mt, imageWidth, imageHeight);
+
+    return (ita30 - 3 * ita12) * (ita30 + ita12) * (pow(ita30 + ita12, 2) - 3 * pow(ita21 + ita03, 2)) + (3 * ita21 - ita03) * (ita21 + ita03) * (3 * pow(ita30 + ita12 , 2) - pow(ita21 + ita03, 2));
+}
+
+float calculateM6 (int pixelsp[], mt_data *mt, int imageWidth, int imageHeight) {
+    float ita20 = calculateItaij(pixelsp, 2, 0, mt, imageWidth, imageHeight);
+    float ita02 = calculateItaij(pixelsp, 0, 2, mt, imageWidth, imageHeight);
+    float ita30 = calculateItaij(pixelsp, 3, 0, mt, imageWidth, imageHeight);
+    float ita12 = calculateItaij(pixelsp, 1, 2, mt, imageWidth, imageHeight);
+    float ita21 = calculateItaij(pixelsp, 2, 1, mt, imageWidth, imageHeight);
+    float ita03 = calculateItaij(pixelsp, 0, 3, mt, imageWidth, imageHeight);
+    float ita11 = calculateItaij(pixelsp, 1, 1, mt, imageWidth, imageHeight);
+    return (ita20 - ita02) * (pow(ita30 + ita12, 2) - pow(ita21 + ita03, 2)) + 4 * ita11 * (ita30 + ita12) * (ita21 + ita03);
+}
+
+float calculateM7 (int pixelsp[], mt_data *mt, int imageWidth, int imageHeight) {
+    float ita21 = calculateItaij(pixelsp, 2, 1, mt, imageWidth, imageHeight);
+    float ita03 = calculateItaij(pixelsp, 0, 3, mt, imageWidth, imageHeight);
+    float ita12 = calculateItaij(pixelsp, 1, 2, mt, imageWidth, imageHeight);
+    float ita30 = calculateItaij(pixelsp, 3, 0, mt, imageWidth, imageHeight);
+
+    return (3 * ita21 - ita03) * (ita30 + ita12) * (pow(ita30 + ita12, 2) - 3 * pow(ita21 + ita03, 2)) - (ita30 - 3 * ita12) * (ita21 + ita03) * (3 * pow(ita30 + ita12, 2) - pow(ita21 + ita03, 2));
+}
+
 mt_pixel mt_starting_pixel(mt_data* mt)
 {
   // Find the minimum pixel value in the image
@@ -85,6 +186,76 @@ static void mt_init_node_indexes(mt_data *mt) {
         char str[17];
         sprintf(str, "%d", i);
         mt->nodeIndexes[i].indexes = strdup(str);
+    }
+}
+
+static void mt_init_node_moments (mt_data *mt) {
+    INT_TYPE i;
+
+    for (i = 0; i != mt->img.size; ++i) {
+        mt->moments[i].index = i;
+
+        mt->moments[i].moment1 = 0;
+        mt->moments[i].moment2 = 0;
+        mt->moments[i].moment3 = 0;
+        mt->moments[i].moment4 = 0;
+        mt->moments[i].moment5 = 0;
+        mt->moments[i].moment6 = 0;
+        mt->moments[i].moment7 = 0;
+    }
+}
+
+static void mt_calculate_moments (mt_data *mt) {
+    INT_TYPE i;
+    for (i = 0; i != mt->img.size; ++i) {
+        mt_node mtNode = mt->nodes[i];
+        if (mtNode.area > 1) {
+            mt_node_indexes mtNodeIndexes = mt->nodeIndexes[i];
+            mt_node_moments mtNodeMoments = mt->moments[i];
+            char indexes[1000*1000*7];
+
+//            printf("hte indexes is %s", indexes);
+            strcpy(indexes, mtNodeIndexes.indexes);
+
+            int (*rawpixels)=(int (*))malloc(sizeof(int)*(1000*1000));
+
+            int TotalCount = 0;
+            char *p = strtok(indexes,",");
+
+            while (p != NULL) {
+
+                int midInd = atoi(p);
+                rawpixels[TotalCount++] = midInd;
+                p = strtok(NULL,",");
+            }
+
+            int (*pixels)=(int (*))malloc(sizeof(int)*TotalCount);
+
+            for (int j = 0; j < TotalCount; ++j) {
+                int jva = rawpixels[j];
+                pixels[j] = rawpixels[j];
+            }
+
+            PIXEL_TYPE m1 = calculateM1(pixels, mt, mt->img.width, TotalCount);
+            PIXEL_TYPE m2 = calculateM2(pixels, mt, mt->img.width, TotalCount);
+            PIXEL_TYPE m3 = calculateM3(pixels, mt, mt->img.width, TotalCount);
+            PIXEL_TYPE m4 = calculateM4(pixels, mt, mt->img.width, TotalCount);
+            PIXEL_TYPE m5 = calculateM5(pixels, mt, mt->img.width, TotalCount);
+            PIXEL_TYPE m6 = calculateM6(pixels, mt, mt->img.width, TotalCount);
+            PIXEL_TYPE m7 = calculateM7(pixels, mt, mt->img.width, TotalCount);
+
+            mtNodeMoments.moment1 = m1;
+            mtNodeMoments.moment2 = m2;
+            mtNodeMoments.moment3 = m3;
+            mtNodeMoments.moment4 = m4;
+            mtNodeMoments.moment5 = m5;
+            mtNodeMoments.moment6 = m6;
+            mtNodeMoments.moment7 = m7;
+
+            free(rawpixels);
+            free(pixels);
+
+        }
     }
 }
 
@@ -364,8 +535,6 @@ void mt_init(mt_data* mt, const image* img)
 
   printf("The size of raw indexes is %lu\n", sizeof(mt_node_indexes));
 
-  mt_node_indexes exampleIndexes = {.index=2929292, .indexes="3434343"};
-  printf("The assiged one size is %lu \n", sizeof(exampleIndexes));
   mt->nodeIndexes = safe_malloc(mt->img.size * sizeof(mt_node_indexes));
   // mt->nodeIndexes = safe_calloc(mt->img.size, sizeof(mt_node_indexes));
 

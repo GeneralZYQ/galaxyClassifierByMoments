@@ -37,12 +37,23 @@ typedef struct
   FLOAT_TYPE power;
 } mt_node_attributes;
 
-typedef struct {
+typedef struct { // Maar this is not useful for the final 
 
     INT_TYPE index; //The start index
     char *indexes; // The indexes, separated by ','. Such as '4,5,6,7,9'
 
 }mt_node_indexes;
+
+typedef struct {
+    INT_TYPE index;//The index of the node
+    FLOAT_TYPE moment1;
+    FLOAT_TYPE moment2;
+    FLOAT_TYPE moment3;
+    FLOAT_TYPE moment4;
+    FLOAT_TYPE moment5;
+    FLOAT_TYPE moment6;
+    FLOAT_TYPE moment7;
+}mt_node_moments;
 
 typedef struct
 {
@@ -77,6 +88,7 @@ typedef struct
   mt_connectivity connectivity;  
   int verbosity_level;
   mt_node_indexes *nodeIndexes;
+  mt_node_moments *moments;
 } mt_data;
 
 void* mt_malloc(size_t size);
