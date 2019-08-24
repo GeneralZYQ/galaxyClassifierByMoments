@@ -72,12 +72,12 @@ for fileName in files:
 
 
 
-		# crocantImage = np.ndarray((6,6), buffer=np.array([[0,0,0,0,0,0], 
-  #   	                                               [0,1,1,1,1,0], 
-  #   	                                               [0,1,2,2,1,0], 
-  #   	                                               [0,4,4,1,1,0], 
-  #   	                                               [0,0,1,0,0,0],
-  #   	                                               [0,0,0,0,0,0]]), dtype=int)
+		crocantImage = np.ndarray((6,6), buffer=np.array([[0,0,0,0,0,0], 
+    	                                               [0,1,1,1,1,0], 
+    	                                               [0,1,2,2,1,0], 
+    	                                               [0,4,4,1,1,0], 
+    	                                               [0,0,1,0,0,0],
+    	                                               [0,0,0,0,0,0]]), dtype=int)
 
 
 
@@ -86,9 +86,9 @@ for fileName in files:
 
 		mt = mto.build_max_tree(crocantImage, params)
 		MTnodes = npct.as_array(ctp.cast(mt.nodes, ctp.POINTER(ctp.c_int32)), (crocantImage.size, 2))
-		MTNODEINDEXESnodes = npct.as_array(ctp.cast(mt.nodeIndexes, ctp.POINTER(ctp.c_int32)), (crocantImage.size, 2))
+		mtMoments = npct.as_array(ctp.cast(mt.moments, ctp.POINTER(ctp.c_float)), (crocantImage.size, 2))
+		# MTNODEINDEXESnodes = npct.as_array(ctp.cast(mt.nodeIndexes, ctp.POINTER(ctp.c_int32)), (crocantImage.size, 2))
 
-		print (MTNODEINDEXESnodes)
 
 
 		# shapes = [crocantImage.shape[1], crocantImage.shape[0]]

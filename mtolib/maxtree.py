@@ -18,6 +18,7 @@ class MaxTree:
         self.node_attributes = None
         self.root = None
         self.nodeIndexes = None
+        self.moments = None
 
         self.mt = None
 
@@ -34,6 +35,8 @@ class MaxTree:
         return mt_class.MtData(root=self.root,
                                nodes=self.nodes,
                                node_attributes=self.node_attributes,
+                               nodeIndexes=self.nodeIndexes,
+                               moments=self.moments,
                                img=mt_class.Image(img_pointer, *self.image.shape, self.image.size),
                                verbosity_level = self.verbosity)
 
@@ -79,8 +82,6 @@ class OriginalMaxTree(MaxTree):
 
         # Get a 2D numpy array of the MtNode data
         nodes = npct.as_array(ct.cast(self.mt.nodes, ct.POINTER(ct.c_int32)), (self.mt.img.size, 2))
-        nodeIndexes = npct.as_array(ct.cast(self.mt.nodeIndexes, ct.POINTER(ct.c_int32)), (self.mt.img.size, 2))
-        
         # node_attributes = npct.as_array(ct.cast(self.mt.node_attributes, ct.POINTER(ct.c_double)),
         #                                (self.mt.img.size, 2))
 
@@ -90,6 +91,7 @@ class OriginalMaxTree(MaxTree):
         self.nodes = self.mt.nodes
         self.nodeIndexes = self.mt.nodeIndexes
         self.node_attributes = self.mt.node_attributes
+        self.moments = self.mt.moments
 
     def free_objects(self):
         # Free the memory used by the max tree

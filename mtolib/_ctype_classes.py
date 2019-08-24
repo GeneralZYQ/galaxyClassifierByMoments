@@ -37,6 +37,15 @@ def init_classes(d_type):
     MTNodeIndexes._fields_ = [("index", ct.c_int16),
                               ("indexes", ct.c_byte * BUFSIZE)]
 
+    MtMoments._fields_ = [("index", ct.c_int16), 
+                          ("moment1", float_type),
+                          ("moment2", float_type),
+                          ("moment3", float_type),
+                          ("moment4", float_type),
+                          ("moment5", float_type),
+                          ("moment6", float_type),
+                          ("moment7", float_type),]
+
     Image._fields_ = [("data", ct.POINTER(pixel_type)),
                     ("height", ct.c_int16),
                     ("width", ct.c_int16),
@@ -45,6 +54,7 @@ def init_classes(d_type):
     MtData._fields_ = [("root", ct.POINTER(MtNode)),
                     ("nodes", ct.POINTER(MtNode)),
                     ("nodeIndexes", ct.POINTER(MTNodeIndexes)),
+                    ("moments", ct.POINTER(MtMoments)),
                     ("node_attributes", ct.POINTER(MtNodeAttributes)),
                     ("heap", MtHeap),
                     ("stack", MtStack),
@@ -108,6 +118,10 @@ class MtNode(ct.Structure):
 
 class MTNodeIndexes(ct.Structure):
     pass
+
+class MtMoments(ct.Structure):
+    pass
+        
 
 class Image(ct.Structure):
     pass

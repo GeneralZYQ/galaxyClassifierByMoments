@@ -38,7 +38,7 @@ float calculateMpq (int pixels[], int p, int q, mt_data *mt, int imageWidth, int
         int xc = value % imageWidth;
         int yc = value / imageWidth;
         PIXEL_TYPE imgvalue = mt->img.data[value];
-        float mid = pow(xc, p) * pow(yc, q) * imgvalue;
+        PIXEL_TYPE mid = pow(xc, p) * pow(yc, q) * imgvalue;
         mpq += mid;
     }
 
@@ -66,7 +66,7 @@ float calculateMiupq(int pixels[], int p, int q, mt_data *mt, int imageWidth, in
 float calculateItaij (int pixels[], int i, int j, mt_data *mt, int imageWidth, int NIndicesCount) {
     float miuij = calculateMiupq(pixels, i, j, mt, imageWidth, NIndicesCount);
     float miu00 = calculateMiupq(pixels, 0, 0, mt, imageWidth, NIndicesCount);
-    float itaij = miuij / powf(miu00, (1 + (i + j) / 2.0));
+    float itaij = miuij / pow(miu00, (1 + (i + j) / 2.0));
     return itaij;
 }
 //
@@ -185,7 +185,7 @@ static void mt_init_node_indexes(mt_data *mt) {
 
         char str[17];
         sprintf(str, "%d", i);
-        mt->nodeIndexes[i].indexes = strdup(str);
+        mt->nodeIndexes[i].indexes = str;
     }
 }
 
@@ -209,6 +209,11 @@ static void mt_calculate_moments (mt_data *mt) {
     INT_TYPE i;
     for (i = 0; i != mt->img.size; ++i) {
         mt_node mtNode = mt->nodes[i];
+
+        if (1 % 50 == 0)
+        {
+          printf("The current index is %d\n", i);
+        }
         if (mtNode.area > 1) {
             mt_node_indexes mtNodeIndexes = mt->nodeIndexes[i];
             mt_node_moments mtNodeMoments = mt->moments[i];
@@ -393,13 +398,13 @@ static void mt_descend(mt_data* mt, mt_pixel *next_pixel)
 
   //This is the start====
 
-  
-
   char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
+  char finalCurrentIndex[1000*1000*7];
+  sprintf(finalCurrentIndex, "%s", currentIndexes);
   char *toAddIndexes = mt->nodeIndexes[old_top_index].indexes;
-  strcat(currentIndexes, ",");
-  strcat(currentIndexes, toAddIndexes);
-  mt->nodeIndexes[stack_top_index].indexes = strdup(currentIndexes);
+  strcat(finalCurrentIndex, ",");
+  strcat(finalCurrentIndex, toAddIndexes);
+  mt->nodeIndexes[stack_top_index].indexes = finalCurrentIndex;
 
   //This is the end====
 
@@ -488,11 +493,13 @@ void mt_flood(mt_data* mt)
       //This is the start ====
 
       char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
+      char finalCurrentIndex[1000*1000*7];
       char toAddIndex[17];
       sprintf(toAddIndex, "%d", index);
-      strcat(currentIndexes, ",");
-      strcat(currentIndexes, toAddIndex);
-      mt->nodeIndexes[stack_top_index].indexes = strdup(currentIndexes);
+      sprintf(finalCurrentIndex, "%s", currentIndexes);
+      strcat(finalCurrentIndex, ",");
+      strcat(finalCurrentIndex, toAddIndex);
+      mt->nodeIndexes[stack_top_index].indexes = finalCurrentIndex;
 
       // This is the end ===
     }
@@ -535,6 +542,7 @@ void mt_init(mt_data* mt, const image* img)
   mt->nodeIndexes = safe_malloc(mt->img.size * sizeof(mt_node_indexes));
   mt->moments = safe_malloc(mt->img.size * sizeof(mt_node_moments));
 
+
   mt_stack_alloc_entries(&mt->stack);
   mt_heap_alloc_entries(&mt->heap);
 
@@ -554,6 +562,8 @@ void mt_free(mt_data* mt)
   // Free the memory occupied by the max tree
   free(mt->nodes);
   free(mt->nodes_attributes);
+  free(mt->moments);
+  free(mt->nodeIndexes);
 
   //memset(mt, 0, sizeof(mt_data));
 }
