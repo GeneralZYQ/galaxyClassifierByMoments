@@ -395,11 +395,11 @@ static void mt_descend(mt_data* mt, mt_pixel *next_pixel)
 
   
 
-  // char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
-  // char *toAddIndexes = mt->nodeIndexes[old_top_index].indexes;
-  // strcat(currentIndexes, ",");
-  // strcat(currentIndexes, toAddIndexes);
-  // mt->nodeIndexes[stack_top_index].indexes = strdup(currentIndexes);
+  char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
+  char *toAddIndexes = mt->nodeIndexes[old_top_index].indexes;
+  strcat(currentIndexes, ",");
+  strcat(currentIndexes, toAddIndexes);
+  mt->nodeIndexes[stack_top_index].indexes = strdup(currentIndexes);
 
   //This is the end====
 
@@ -487,12 +487,12 @@ void mt_flood(mt_data* mt)
 
       //This is the start ====
 
-      // char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
-      // char toAddIndex[17];
-      // sprintf(toAddIndex, "%d", index);
-      // strcat(currentIndexes, ",");
-      // strcat(currentIndexes, toAddIndex);
-      // mt->nodeIndexes[stack_top_index].indexes = strdup(currentIndexes);
+      char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
+      char toAddIndex[17];
+      sprintf(toAddIndex, "%d", index);
+      strcat(currentIndexes, ",");
+      strcat(currentIndexes, toAddIndex);
+      mt->nodeIndexes[stack_top_index].indexes = strdup(currentIndexes);
 
       // This is the end ===
     }
@@ -518,10 +518,7 @@ void mt_flood(mt_data* mt)
   mt_stack_free_entries(&mt->stack);
   mt_heap_free_entries(&mt->heap);
 
-  int length = (sizeof(mt->nodes));
-  printf("The size of nodes is %d\n", length);
-
-  
+  mt_calculate_moments(mt);
 }
 
 void mt_init(mt_data* mt, const image* img)
@@ -536,13 +533,14 @@ void mt_init(mt_data* mt, const image* img)
   printf("The size of raw indexes is %lu\n", sizeof(mt_node_indexes));
 
   mt->nodeIndexes = safe_malloc(mt->img.size * sizeof(mt_node_indexes));
-  // mt->nodeIndexes = safe_calloc(mt->img.size, sizeof(mt_node_indexes));
+  mt->moments = safe_malloc(mt->img.size * sizeof(mt_node_moments));
 
   mt_stack_alloc_entries(&mt->stack);
   mt_heap_alloc_entries(&mt->heap);
 
   mt_init_nodes(mt);
   mt_init_node_indexes(mt);
+  mt_init_node_moments(mt);
 
   mt->connectivity.neighbors = mt_conn_4;
   mt->connectivity.width = MT_CONN_4_WIDTH;
