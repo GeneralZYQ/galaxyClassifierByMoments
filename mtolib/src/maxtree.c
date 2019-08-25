@@ -1,9 +1,22 @@
 #include "maxtree.h"
 
 #include <assert.h>
+#include <math.h>
+#include <time.h>
+#include <stdio.h>
+
+#include <string.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <dirent.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #define MT_INDEX_OF(PIXEL) ((PIXEL).location.y * mt->img.width + \
   (PIXEL).location.x)
+
+#define STR_LEN 10
 
 const int mt_conn_12[MT_CONN_12_HEIGHT * MT_CONN_12_WIDTH] =
 {
@@ -129,6 +142,33 @@ float calculateM7 (int pixelsp[], mt_data *mt, int imageWidth, int imageHeight) 
     return (3 * ita21 - ita03) * (ita30 + ita12) * (pow(ita30 + ita12, 2) - 3 * pow(ita21 + ita03, 2)) - (ita30 - 3 * ita12) * (ita21 + ita03) * (3 * pow(ita30 + ita12, 2) - pow(ita21 + ita03, 2));
 }
 
+char *GenerateStr()
+{
+    char str[STR_LEN + 1] = {0};
+    int i,flag;
+
+    srand(time(NULL));
+    for(i = 0; i < STR_LEN; i ++)
+    {
+        flag = rand()%3;
+        switch(flag)
+        {
+            case 0:
+                str[i] = rand()%26 + 'a';
+                break;
+            case 1:
+                str[i] = rand()%26 + 'A';
+                break;
+            case 2:
+                str[i] = rand()%10 + '0';
+                break;
+        }
+    }
+    // printf("%s\n", str);
+
+    return str;
+}
+
 mt_pixel mt_starting_pixel(mt_data* mt)
 {
   // Find the minimum pixel value in the image
@@ -195,13 +235,15 @@ static void mt_init_node_moments (mt_data *mt) {
     for (i = 0; i != mt->img.size; ++i) {
         mt->moments[i].index = i;
 
-        mt->moments[i].moment1 = 0;
-        mt->moments[i].moment2 = 0;
-        mt->moments[i].moment3 = 0;
-        mt->moments[i].moment4 = 0;
-        mt->moments[i].moment5 = 0;
-        mt->moments[i].moment6 = 0;
-        mt->moments[i].moment7 = 0;
+        mt->moments[i].value = 0.0;
+        mt->moments[i].moment1 = 0.0;
+        mt->moments[i].moment2 = 0.0;
+        mt->moments[i].moment3 = 0.0;
+        mt->moments[i].moment4 = 0.0;
+        mt->moments[i].moment5 = 0.0;
+        mt->moments[i].moment6 = 0.0;
+        mt->moments[i].moment7 = 0.0;
+
     }
 }
 
@@ -249,19 +291,94 @@ static void mt_calculate_moments (mt_data *mt) {
             PIXEL_TYPE m6 = calculateM6(pixels, mt, mt->img.width, TotalCount);
             PIXEL_TYPE m7 = calculateM7(pixels, mt, mt->img.width, TotalCount);
 
-            mtNodeMoments.moment1 = m1;
-            mtNodeMoments.moment2 = m2;
-            mtNodeMoments.moment3 = m3;
-            mtNodeMoments.moment4 = m4;
-            mtNodeMoments.moment5 = m5;
-            mtNodeMoments.moment6 = m6;
-            mtNodeMoments.moment7 = m7;
+            mt->moments[i].value = mt->img.data[i];
+            mt->moments[i].moment1 = m1;
+            mt->moments[i].moment2 = m2;
+            mt->moments[i].moment3 = m3;
+            mt->moments[i].moment4 = m4;
+            mt->moments[i].moment5 = m5;
+            mt->moments[i].moment6 = m6;
+            mt->moments[i].moment7 = m7;
+
+            // printf("I am caculatedd! with index %d and the moment1 is %f\n ", mtNodeMoments.index, mtNodeMoments.moment1);
+
 
             free(rawpixels);
             free(pixels);
 
         }
     }
+}
+
+static void mt_calculate_local_spectrum(mt_data *mt) {
+
+    FILE *wfp = NULL;
+    char *result_file_path = (char*)malloc(sizeof(char)*512);
+
+    if(result_file_path == NULL){
+        printf("allocate memory for file path failed.\n");
+    }
+
+    memset(result_file_path, 0, sizeof(char)*512);
+    char *finalname = (char*)malloc(sizeof(char)*512);
+    sprintf(finalname, "%d_%d_%d_%s_localSpectrum.csv", mt->img.size, mt->img.width, mt->img.height, GenerateStr());
+
+    sprintf(result_file_path, "%s/%s", "/Volumes/DISK1/spectrums/7MomentsSpirals", finalname);
+
+    wfp = fopen(result_file_path, "a");
+    if(NULL == wfp)
+    {
+        return; //
+    }
+
+    printf("Start calculating local spectrums!\n", );
+
+    for (int i = 0; i < mt->img.size; ++i) {
+        if (mt->nodes[i].area > 1) {
+            int parent = mt->nodes[i].parent;
+            if (parent == MT_NO_PARENT || parent == 0) {
+                continue;
+            }
+
+            int currentArea = mt->nodes[i].area;
+            PIXEL_TYPE currentValue =  mt->moments[i].value;
+            float currentM1 = mt->moments[i].moment1;
+            float currentM2 = mt->moments[i].moment2;
+            float currentM3 = mt->moments[i].moment3;
+            float currentM4 = mt->moments[i].moment4;
+            float currentM5 = mt->moments[i].moment5;
+            float currentM6 = mt->moments[i].moment6;
+            float currentM7 = mt->moments[i].moment7;
+
+
+            PIXEL_TYPE fatherValue =  mt->moments[parent].value;
+            float fatherM1 = mt->moments[parent].moment1;
+            float fatherM2 = mt->moments[parent].moment2;
+            float fatherM3 = mt->moments[parent].moment3;
+            float fatherM4 = mt->moments[parent].moment4;
+            float fatherM5 = mt->moments[parent].moment5;
+            float fatherM6 = mt->moments[parent].moment6;
+            float fatherM7 = mt->moments[parent].moment7;
+
+            float deltaValue = currentValue - fatherValue;
+
+            float spectrums[9] = {currentArea, deltaValue, currentM1 - fatherM1, currentM2 - fatherM2, currentM3 - fatherM3, currentM4 - fatherM4, currentM5 - fatherM5, currentM6 - fatherM6, currentM7 - fatherM7};
+
+
+            for (int j = 0; j < 9; ++j) {
+                if (j ==  8) {
+                    fprintf(wfp, "%f", spectrums[j]);
+                } else {
+                    fprintf(wfp, "%f,", spectrums[j]);
+                }
+            }
+            fprintf(wfp, "\n");
+        }
+    }
+
+    fprintf(wfp, "\n");
+//
+    close(wfp);
 }
 
 static int mt_queue_neighbour(mt_data* mt, PIXEL_TYPE val,
@@ -398,13 +515,22 @@ static void mt_descend(mt_data* mt, mt_pixel *next_pixel)
 
   //This is the start====
 
-  char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
-  char finalCurrentIndex[1000*1000*7];
-  sprintf(finalCurrentIndex, "%s", currentIndexes);
-  char *toAddIndexes = mt->nodeIndexes[old_top_index].indexes;
-  strcat(finalCurrentIndex, ",");
-  strcat(finalCurrentIndex, toAddIndexes);
-  mt->nodeIndexes[stack_top_index].indexes = finalCurrentIndex;
+  // char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
+  // char finalCurrentIndex[1000*1000*7];
+  // sprintf(finalCurrentIndex, "%s", currentIndexes);
+  // char *toAddIndexes = mt->nodeIndexes[old_top_index].indexes;
+  // strcat(finalCurrentIndex, ",");
+  // strcat(finalCurrentIndex, toAddIndexes);
+  // mt->nodeIndexes[stack_top_index].indexes = finalCurrentIndex;
+
+    char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
+    char *finalCurrentIndex = (char*) malloc(1000000*7* sizeof(char));
+    sprintf(finalCurrentIndex, "%s", currentIndexes);
+    char *toAddIndexes = mt->nodeIndexes[old_top_index].indexes;
+    strcat(finalCurrentIndex, ",");
+    strcat(finalCurrentIndex, toAddIndexes);
+    mt->nodeIndexes[stack_top_index].indexes = strdup(finalCurrentIndex) ;
+    free(finalCurrentIndex);
 
   //This is the end====
 
@@ -492,14 +618,24 @@ void mt_flood(mt_data* mt)
 
       //This is the start ====
 
+      // char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
+      // char finalCurrentIndex[1000*1000*7];
+      // char toAddIndex[17];
+      // sprintf(toAddIndex, "%d", index);
+      // sprintf(finalCurrentIndex, "%s", currentIndexes);
+      // strcat(finalCurrentIndex, ",");
+      // strcat(finalCurrentIndex, toAddIndex);
+      // mt->nodeIndexes[stack_top_index].indexes = finalCurrentIndex;
+
       char *currentIndexes = mt->nodeIndexes[stack_top_index].indexes;
-      char finalCurrentIndex[1000*1000*7];
+      char *finalCurrentIndex = (char*) malloc(1000000*7* sizeof(char));
       char toAddIndex[17];
       sprintf(toAddIndex, "%d", index);
       sprintf(finalCurrentIndex, "%s", currentIndexes);
       strcat(finalCurrentIndex, ",");
       strcat(finalCurrentIndex, toAddIndex);
-      mt->nodeIndexes[stack_top_index].indexes = finalCurrentIndex;
+      mt->nodeIndexes[stack_top_index].indexes = strdup(finalCurrentIndex);
+      free(finalCurrentIndex);
 
       // This is the end ===
     }
@@ -521,11 +657,14 @@ void mt_flood(mt_data* mt)
   }
 
   mt_remaining_stack(mt);
+  mt_calculate_moments(mt);
+
+  mt_calculate_local_spectrum(mt);
 
   mt_stack_free_entries(&mt->stack);
   mt_heap_free_entries(&mt->heap);
 
-  mt_calculate_moments(mt);
+  
 }
 
 void mt_init(mt_data* mt, const image* img)
@@ -562,7 +701,7 @@ void mt_free(mt_data* mt)
   // Free the memory occupied by the max tree
   free(mt->nodes);
   free(mt->nodes_attributes);
-  free(mt->moments);
+  // free(mt->moments);
   free(mt->nodeIndexes);
 
   //memset(mt, 0, sizeof(mt_data));

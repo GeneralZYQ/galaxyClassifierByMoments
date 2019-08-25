@@ -46,6 +46,7 @@ typedef struct { // Maar this is not useful for the final
 
 typedef struct {
     INT_TYPE index;//The index of the node
+    PIXEL_TYPE value;
     FLOAT_TYPE moment1;
     FLOAT_TYPE moment2;
     FLOAT_TYPE moment3;
